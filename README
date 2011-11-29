@@ -1,1 +1,39 @@
-Initial commit... details coming soon!
+Code respository for the Head Replacement / Virtual Surgeon / Identity Transfer project
+
+Building
+--------
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=. ..
+
+(should build on Win32, MacOS X, and linux)
+
+Prerequisites
+-------------
+OpenCV 2.3.x+
+GMM
+GraphCut Optimization (libGCO) 2.x+
+tclap 1.2.x+
+libcurl
+libfltk 3.x+
+OpenGL [Optional: GLSL shaders support]
+
+Running
+-------
+./{Build_DIR}/HeadReplacement
+
+
+More Info
+---------
+Project webpage: http://goo.gl/VWlUw
+Instruction video: http://youtu.be/YhHb3FAqaUk
+Satisfaction survey (PLEASE fill it after you use the app): https://docs.google.com/spreadsheet/viewform?formkey=dGNBX0ljZXRVXzdtbjBQZ0dULTQwelE6MQ
+
+This work is a collaboration between:
+MIT Media Laboatory
+Tel-Aviv University Computer Graphics Laboratory
+Interdisciplinary Center Herzliya
+Zhejiang University Computer Graphics Laboratory
+
+All images used are under the CrativeCommons By-NonCommecial-ShareAlike 2.0 licesne.
+Source for model images: http://www.flickr.com/photos/kk/
