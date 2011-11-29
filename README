@@ -5,17 +5,21 @@ Building
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=. ..
+make 
 
-(should build on Win32, MacOS X, and linux)
+(use 'make -j[N]' if you have multiple cores/CPUs, where [N] is the number of cores)
+
+It should build on Win32, MacOS X, and linux.
+I'm still integrating all sources and cmakelists from the various OSs, so hang on for updates on cross-compilation.
 
 Prerequisites
 -------------
-OpenCV 2.3.x+
-GMM
-GraphCut Optimization (libGCO) 2.x+
-tclap 1.2.x+
-libcurl
-libfltk 3.x+
+OpenCV 2.3.x+ (http://opencv.willowgarage.com/wiki/Welcome)
+Gmm++ (http://download.gna.org/getfem/html/homepage/gmm.html)
+GraphCut Optimization (GCO) 2.x+ (http://vision.csd.uwo.ca/code/)
+tclap 1.2.x+ (http://tclap.sourceforge.net/)
+libcurl 
+libfltk 3.x+ (http://www.fltk.org/)
 OpenGL [Optional: GLSL shaders support]
 
 Running
