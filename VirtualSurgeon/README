@@ -1,0 +1,2 @@
+VirtualSurgeon is a toolbox for manipulation images of human heads.
+It contains methods for segmentation, relighting, recoloring, blending, matting, and more.
