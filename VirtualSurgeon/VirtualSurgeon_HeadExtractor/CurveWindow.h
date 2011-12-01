@@ -28,6 +28,7 @@ class CurveWidget : public OpenCVImageViewer {
 	Mat& backMask1;
 	const VirtualSurgeon::HeadExtractor& he;
 	
+	cv::Mat _curve_out;
 public:
 	CurveWidget(const cv::Mat& im,
 				Mat_<Point2f>& _curve,
@@ -51,7 +52,7 @@ public:
 	}		
 	
 	void redrawOpenCVImage() {
-		cv::Mat _curve_out; im.copyTo(_curve_out);
+		im.copyTo(_curve_out);
 		
 		he.MakeMaskFromCurve(curve, maskFace, hairMask, backMask, backMask1);
 		
@@ -69,7 +70,7 @@ public:
 		for(int i=0;i<135;i++) {
 			cv::circle(_curve_out,*(curve[i]),3,cv::Scalar(0,255,255),CV_FILLED);
 		}
-		img = new fltk3::RGBImage(_curve_out.data,_curve_out.cols,_curve_out.rows);
+		setImage(_curve_out);
 	}		
 	
 	virtual int handle(int e) {

@@ -1,5 +1,7 @@
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(../../../gmm-4.1/include/gmm)
+include_directories(../../gmm-4.1/include/gmm)
+include_directories(../curl-7.19.3/include)
+include_directories(../../tclap-1.2.1/include)
 
 add_library(VirtualSurgeon_Utils
 	curl_get.cpp
@@ -8,7 +10,11 @@ add_library(VirtualSurgeon_Utils
 	stdafx.cpp
 	VirtualSurgeon_Utils.cpp
 	)
-	
+
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SCL_SECURE_NO_DEPRECATE")
+endif(MSVC)	
+
 install(TARGETS VirtualSurgeon_Utils
   # IMPORTANT: Add the library to the "export-set"
   EXPORT HeadReplacementLibraryDepends

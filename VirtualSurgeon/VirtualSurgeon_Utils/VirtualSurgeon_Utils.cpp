@@ -14,9 +14,13 @@ using namespace TCLAP;
 
 #include "neck_curve_points.h"
 
+#include <fltk3/ask.h>
+
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
-#include <fltk3/ask.h>
+#endif
+#ifdef WIN32
+#include <Windows.h>
 #endif
 
 namespace VirtualSurgeon {
@@ -311,6 +315,14 @@ void VirtualSurgeonFaceData::DetectEyes(Mat& frame){
 		printf("executable path is %s\n", path);
 		string path_s = path;
 		this->path_to_exe = path_s.substr(0, path_s.rfind("/")) + "/"; //TODO move this out of here....
+#elif defined(WIN32)
+	TCHAR szPath[MAX_PATH];
+
+    if( GetModuleFileName( NULL, szPath, MAX_PATH ) )
+    {
+		string path_s = szPath;
+		this->path_to_exe = path_s.substr(0, path_s.rfind("\\")) + "\\"; //TODO move this out of here....
+#endif
 		face_cascade_name = this->path_to_exe + face_cascade_name;
 		eyes_cascade_name = this->path_to_exe + eyes_cascade_name;
 //		fltk3::alert(face_cascade_name.c_str());
@@ -318,9 +330,6 @@ void VirtualSurgeonFaceData::DetectEyes(Mat& frame){
 		cerr << "can't get executable name: buffer too small; need size " << size << endl;
 		fltk3::alert("can't get executable name: buffer too small;");
 	}
-#endif
-	//TODO do the same for Win32
-	
 	
 	CascadeClassifier face_cascade;
 	CascadeClassifier eyes_cascade;
@@ -427,6 +436,11 @@ bool VirtualSurgeonFaceData::FaceDotComDetection(Mat& im) {
 	//if(img_filename.length() == 0) throw new Exception(-1,"Could not get normalized image filename","FaceDotComDetection","VirtualSurgeon_Utils.cpp",220);
 
 	im = imread(img_filename);
+
+	if(im.cols == 0 || im.rows == 0) {
+		fltk3::alert("Can't read image");
+		exit(0);
+	}
 
 	cout << "Image Read: " << endl;
 

@@ -1,13 +1,15 @@
 add_library(GCOptimization 
-	../../../gco-v3.0/GCoptimization.cpp 
-	../../../gco-v3.0/graph.cpp 
-	../../../gco-v3.0/LinkedBlockList.cpp 
-	../../../gco-v3.0/maxflow.cpp)
+	../../gco-v3.0/GCoptimization.cpp 
+	../../gco-v3.0/graph.cpp 
+	../../gco-v3.0/LinkedBlockList.cpp 
+	../../gco-v3.0/maxflow.cpp)
 
 
-include_directories(../../../gco-v3.0)
+include_directories(../../gco-v3.0)
 include_directories(${VirtualSurgeon_matting_INCLUDE_DIRS})
-include_directories(../../../fltk-3.0/include)
+include_directories(../../fltk-3.0/include)
+include_directories(${OpenGL_INCLUDE_DIRS})
+include_directories(../../tclap-1.2.1/include)
 
 add_definitions(-DHEAD_EXTRACTOR_MAIN)
 

@@ -11,6 +11,9 @@
 #include <stdlib.h>
 
 #include <fltk3/FileChooser.h> 
+#ifdef VIRTUAL_SURGEON_DEBUG
+#  include <fltk3/ask.h>
+#endif
 
 //#include <QtGui/qfiledialog.h>
 //#include <QtGui/qapplication.h>
@@ -596,10 +599,16 @@ int head_extractor_main(int argc, char** argv) {
 		if(!p.FaceDotComDetection(_tmp)) {
 				//no cached information
 			//detect eyes
+#ifdef VIRTUAL_SURGEON_DEBUG
+			fltk3::alert("Detect Eyes");
+#endif
 			p.DetectEyes(_tmp);
 		}
 		
 		/***************** aid with landmarks positioning *******************/
+#ifdef VIRTUAL_SURGEON_DEBUG
+		fltk3::alert("Landmarks");
+#endif
 		StartLandmarksWindow(_tmp,p);
 		
 		p.PrintParams();
@@ -621,6 +630,7 @@ int head_extractor_main(int argc, char** argv) {
 			   MIN(im.rows,MAX(0,p.li.y - li_ri_m_3)),
 			   MIN(im.cols-MAX(0,p.li.x - li_ri_m_3),MAX(0,li_ri_t_6_5)),
 			   MIN(im.rows-MAX(0,p.li.y - li_ri_m_3),MAX(0,li_ri_t_6_5)));
+		r = r & Rect(0,0,im.cols,im.rows);
 		
 		im(r).copyTo(_tmp);
 		
@@ -630,6 +640,9 @@ int head_extractor_main(int argc, char** argv) {
 		p.li = p.li - r.tl(); 
 		p.ri = p.ri - r.tl(); 
 		
+#ifdef VIRTUAL_SURGEON_DEBUG
+		fltk3::alert("Face relighting");
+#endif
 		cout << endl << "--------------------- Face relighting ----------------------" << endl;
 #if 1
 		{
@@ -663,7 +676,7 @@ int head_extractor_main(int argc, char** argv) {
 				roi = all(Rect(relitRect.width*3,0,relitRect.width,relitRect.height));
 				cvtColor(relitMask, roi, CV_GRAY2BGR);	
 				imshow("all",all); waitKey(p.wait_time);
-				destroyAllWindows();
+				cv::destroyAllWindows();
 			}
 			
 			//Use poisson belnding to create a "continuation" of the relit face, for blending into original
@@ -858,6 +871,7 @@ int head_extractor_main(int argc, char** argv) {
 		
 	} catch (Exception e) {
 		cerr << "Error " << e.what();
+		fltk3::alert(e.what());
 		waitKey();
 		return 1;
 	}

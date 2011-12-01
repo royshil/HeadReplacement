@@ -39,6 +39,10 @@ void glDisable2D()
 	glEnable(GL_DEPTH_TEST);
 }
 
+#if defined(WIN32)
+#define log2(x) log10((double)(x))/log10(2.0)
+#endif
+
 void copyImgToTex(Mat& _tex_img, GLuint* texID, double* _twr, double* _thr) {
 	Mat tex_img = _tex_img;
 	flip(_tex_img,tex_img,0);

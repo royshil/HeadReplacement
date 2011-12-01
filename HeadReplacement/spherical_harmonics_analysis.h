@@ -7,9 +7,9 @@
  *
  */
 
-#import <opencv2/opencv.hpp>
-#import <map>
-#import <set>
+#include <opencv2/opencv.hpp>
+#include <map>
+#include <set>
 
 using namespace cv;
 using namespace std;
@@ -175,17 +175,19 @@ public:
 	
 	void approximateInitialLightingCoeffs() {
 		double t = getTickCount();
-		Size small(round(face_img.cols*scaleFactor),round(face_img.rows*scaleFactor));
-		int flatSize = small.width*small.height;
+		int small_rows = cvRound(face_img.cols*scaleFactor);
+		int small_cols = cvRound(face_img.rows*scaleFactor);
+		cv::Size small_(small_rows,small_cols);
+		int flatSize = small_.width*small_.height;
 		
-		Mat_<Vec3f> smallNormalMap; resize(normalMap,smallNormalMap,small);
+		Mat_<Vec3f> smallNormalMap; resize(normalMap,smallNormalMap,small_);
 		Mat_<Vec3f> normalMapFlat = smallNormalMap.reshape(flatSize);
 		
-		Mat_<Vec3b> smallFaceImage; resize(face_img,smallFaceImage,small);
+		Mat_<Vec3b> smallFaceImage; resize(face_img,smallFaceImage,small_);
 		Mat_<Vec3b> face_img_hsv; cvtColor(smallFaceImage, face_img_hsv, CV_BGR2HSV);
 		face_img_hsv = face_img_hsv.reshape(flatSize);
 		
-		Mat_<uchar> smallFaceMask; resize(face_mask,smallFaceMask,small,0,0,INTER_NEAREST);
+		Mat_<uchar> smallFaceMask; resize(face_mask,smallFaceMask,small_,0,0,INTER_NEAREST);
 		smallFaceMask = smallFaceMask.reshape(flatSize);
 
 		int n = countNonZero(smallFaceMask);
@@ -228,25 +230,25 @@ public:
 	}
 	
 	void computeLightingCoefficients() {
-		Size small(round(face_img.cols*scaleFactor),round(face_img.rows*scaleFactor));
-		int flatSize = small.width*small.height;
+		Size small_(cvRound(face_img.cols*scaleFactor),cvRound(face_img.rows*scaleFactor));
+		int flatSize = small_.width*small_.height;
 		
-		Mat_<Vec3f> smallNormalMap; resize(normalMap,smallNormalMap,small);
+		Mat_<Vec3f> smallNormalMap; resize(normalMap,smallNormalMap,small_);
 		Mat_<Vec3f> normalMapFlat = smallNormalMap.reshape(flatSize);
 		
 		vector<Mat_<uchar> > face_img_chnls;
 		{
-			Mat_<Vec3b> smallFaceImage; resize(face_img,smallFaceImage,small);
+			Mat_<Vec3b> smallFaceImage; resize(face_img,smallFaceImage,small_);
 			Mat_<Vec3b> face_img_hsv; cvtColor(smallFaceImage, face_img_hsv, CV_BGR2HSV);
 			face_img_hsv = face_img_hsv.reshape(flatSize);
 			split(face_img_hsv, face_img_chnls);
 		}
 		
-		Mat_<uchar> smallFaceMask; resize(face_mask,smallFaceMask,small,0,0,INTER_NEAREST);
+		Mat_<uchar> smallFaceMask; resize(face_mask,smallFaceMask,small_,0,0,INTER_NEAREST);
 		smallFaceMask = smallFaceMask.reshape(flatSize);
 
 		Mat_<float> grayAlbedo; cvtColor(albedo, grayAlbedo, CV_BGR2GRAY);
-		Mat_<float> smallAlbedo; resize(grayAlbedo,smallAlbedo,small);
+		Mat_<float> smallAlbedo; resize(grayAlbedo,smallAlbedo,small_);
 		smallAlbedo = smallAlbedo.reshape(flatSize);
 		
 		int n = countNonZero(smallFaceMask);

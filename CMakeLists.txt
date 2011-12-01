@@ -29,6 +29,17 @@ foreach(p LIB BIN INCLUDE CMAKE)
     set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
   endif()
 endforeach()
+
+if(APPLE)
+	set(EXECUTABLE_DIR "${CMAKE_INSTALL_PREFIX}/HeadReplacement/HeadReplacement.app/Contents/MacOS/")
+endif()
+if(WIN32)
+	set(EXECUTABLE_DIR "${CMAKE_INSTALL_PREFIX}/HeadReplacement/output/")
+endif()
+
+if(DO_DEBUG) 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVIRTUAL_SURGEON_DEBUG")
+endif(DO_DEBUG)
  
 # set up include-directories
 include_directories(
@@ -64,23 +75,30 @@ install(EXPORT HeadReplacementLibraryDepends DESTINATION
   "${INSTALL_DATA_DIR}/HeadReplacement/CMake"
   COMPONENT dev)
 
-set(HeadReplacement_BUNDLE_EXE "${CMAKE_INSTALL_PREFIX}/HeadReplacement/HeadReplacement.app/Contents/MacOS/")
 
 install(FILES 
 	HeadReplacement/haarcascade_frontalface_alt.xml 
 	HeadReplacement/haarcascade_eye_tree_eyeglasses.xml 
 	HeadReplacement/3280223114_e244fca104_b_d.dummy.png 
 	HeadReplacement/3281508985_668495be2a_b_d.dummy.png
-	HeadReplacement/elipsoid_face_nose.obj
-	DESTINATION "${HeadReplacement_BUNDLE_EXE}")
-install(DIRECTORY HeadReplacement/reshaping HeadReplacement/reshaping1 DESTINATION "${HeadReplacement_BUNDLE_EXE}")
+	DESTINATION ${EXECUTABLE_DIR})
+install(DIRECTORY HeadReplacement/reshaping HeadReplacement/reshaping1
+	DESTINATION ${EXECUTABLE_DIR})
 
-SET(APPS "\${CMAKE_INSTALL_PREFIX}/HeadReplacement/HeadReplacement.app")  # paths to executables
-set(DIRS "${HeadReplacement_BUNDLE_EXE}" ${INSTALL_LIB_DIR})   # directories to search for prerequisites
-INSTALL(CODE "
-   include(BundleUtilities)
-   fixup_bundle(\"${APPS}\"   \"${HeadReplacement_BUNDLE_EXE}\"   \"${DIRS}\")
-   " COMPONENT Runtime)
+if(APPLE)
+	SET(APPS "\${CMAKE_INSTALL_PREFIX}/HeadReplacement/HeadReplacement.app")  # paths to executables
+	set(DIRS ${CMAKE_INSTALL_PREFIX}/HeadReplacement.app/Contents/MacOS ${INSTALL_LIB_DIR})   # directories to search for prerequisites
+	INSTALL(CODE "
+		include(BundleUtilities)
+		fixup_bundle(\"${APPS}\"   \"${OpenCV_LIBS}\"   \"${DIRS}\")
+		" COMPONENT Runtime)
+	
+	set(CPACK_BINARY_DRAGNDROP ON)
+endif()
+if(WIN32)
+	install(FILES "${INSTALL_BIN_DIR}/HeadReplacement.exe" DESTINATION ${EXECUTABLE_DIR})
 
-set(CPACK_BINARY_DRAGNDROP ON)
+	set(CPACK_GENERATOR "ZIP")
+endif()
+
 INCLUDE(CPack)

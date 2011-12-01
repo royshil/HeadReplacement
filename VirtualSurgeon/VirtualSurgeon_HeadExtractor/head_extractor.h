@@ -19,8 +19,8 @@ public:
 								const vector<Mat>& masks, 
 								int bins,
 								GCoptimizationGridGraph* gc,
-								InputArray vert_edge_score,
-								InputArray horiz_edge_score, 
+								cv::InputArray vert_edge_score,
+								cv::InputArray horiz_edge_score, 
 								int* score_matrix, 
 								Mat_<char>& hard_constraints);
 	

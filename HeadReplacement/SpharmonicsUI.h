@@ -7,6 +7,9 @@
  *
  */
 
+#include "OGL_OCV_common.h"
+
+
 
 #include <fstream>
 
@@ -28,8 +31,6 @@ using namespace std;
 #define PI 3.14159265
 
 #include "../VirtualSurgeon/VirtualSurgeon_Utils/VirtualSurgeon_Utils.h"
-
-#include "OGL_OCV_common.h"
 
 typedef struct my_texture {
 	GLuint tex_id;
@@ -92,7 +93,7 @@ private:
 	
 	int state;
 	
-	GLvoid* my_program; //TODO: release it when done
+	GLhandleARB my_program; //TODO: release it when done
 	bool useShaders;
 	
 	bool doRelighting;
@@ -111,7 +112,7 @@ private:
 	
 	string IMAGE_FILENAME1,IMAGE_FILENAME2;
 	string path_to_3D_model;
-	
+
 	Mat_<Vec3f> relitFace;
 	Mat_<uchar> relitMask;
 	Rect bound;
@@ -123,9 +124,11 @@ public:
 		for (int i=0; i<2; i++) {
 			align_sha[i] = Ptr<SphericalHarmonicsAnalyzer>(NULL);
 			double d = norm(face_data.li - face_data.ri);
-			faces[i] = (FaceOrientation){100.0,0.0,0.0,0.0,
+			faces[i].face_scale = 100.0;
+			faces[i].face_x_rot = faces[i].face_y_rot = faces[i].face_z_rot = 0.0;
+			faces[i].face_pos = 
 				//place face model roughly on the existing location
-				Point(face_image.cols,face_image.rows) - ((face_data.li+face_data.ri) * 0.5 + Point(0,d/2))};
+				Point(face_image.cols,face_image.rows) - ((face_data.li+face_data.ri) * 0.5 + Point(0,d/2));
 		}
 		useShaders = false;
 		doRelighting = false;
@@ -138,17 +141,20 @@ public:
 		face_image.copyTo(tex_img[0]);
 //		align_init();
 		resize(0,0,tex_img[0].cols, tex_img[0].rows);
-
-		path_to_3D_model = face_data.path_to_exe + "elipsoid_face_nose.obj";
+#ifdef WIN32
+		path_to_3D_model = face_data.path_to_exe + "\\elipsoid_face_nose.obj";
+#else
+		path_to_3D_model = face_data.path_to_exe + "/elipsoid_face_nose.obj";
+#endif
 	}
 	
 	const Mat_<Vec3f>& getReLitFace() { return relitFace; }
 	const Mat_<uchar>& getReLitMask() { return relitMask; }
 	const Rect& getReLitRect() { return bound; }
 	
-	void checkARBError(GLvoid* obj) {
+	void checkARBError(GLhandleARB obj) {
 		char infolog[1024] = {0}; int _written = 0;
-		glGetInfoLogARB(obj, 1024, &_written, infolog);
+		glGetInfoLogARB((GLhandleARB)obj, 1024, &_written, infolog);
 		if(_written>0) {
 			cerr << infolog << endl;
 		}
@@ -157,63 +163,67 @@ public:
 	static bool notIsAscii(int i) { return !isascii(i); }
 	
 	void align_init_shaders() {
-		const GLubyte* lang_ver = glGetString(GL_SHADING_LANGUAGE_VERSION);
-		cout <<"shading language version: "<<(uchar*)lang_ver<<endl;
+		if(GLEE_ARB_shader_objects) {
+			const GLubyte* lang_ver = glGetString(GL_SHADING_LANGUAGE_VERSION);
+			cout <<"shading language version: "<<(uchar*)lang_ver<<endl;
 		
-		const char * my_fragment_shader_source;
-		const char * my_vertex_shader_source;
+			const char * my_fragment_shader_source;
+			const char * my_vertex_shader_source;
 		
-		string _file = __FILE__;
-		string _dir = _file.substr(0,_file.rfind("/")) + "/";
-		ifstream ifs(string(_dir + "vshader.txt").c_str());
-		ostringstream ss; ss << ifs.rdbuf();
-		ifstream ifs1(string(_dir + "fshader.txt").c_str());
-		ostringstream ss1; ss1 << ifs1.rdbuf();
+			string _file = __FILE__;
+			string _dir = _file.substr(0,_file.rfind("/")) + "/";
+			ifstream ifs(string(_dir + "vshader.txt").c_str());
+			ostringstream ss; ss << ifs.rdbuf();
+			ifstream ifs1(string(_dir + "fshader.txt").c_str());
+			ostringstream ss1; ss1 << ifs1.rdbuf();
 		
-		ifs.close(); ifs1.close();
+			ifs.close(); ifs1.close();
 		
-		string _vertex = ss.str(); _vertex.erase(remove_if(_vertex.begin(), _vertex.end(), notIsAscii), _vertex.end());
-		string _frag = ss1.str(); _frag.erase(remove_if(_frag.begin(), _frag.end(), notIsAscii), _frag.end());
+			string _vertex = ss.str(); _vertex.erase(remove_if(_vertex.begin(), _vertex.end(), notIsAscii), _vertex.end());
+			string _frag = ss1.str(); _frag.erase(remove_if(_frag.begin(), _frag.end(), notIsAscii), _frag.end());
 		
-		// Get Vertex And Fragment Shader Sources
-		my_fragment_shader_source = _frag.c_str();
-		my_vertex_shader_source = _vertex.c_str();
+			// Get Vertex And Fragment Shader Sources
+			my_fragment_shader_source = _frag.c_str();
+			my_vertex_shader_source = _vertex.c_str();
 		
-		//		cout << "vertex shader:"<<endl<<my_vertex_shader_source<<endl;
-		//		cout << "fragment shader:"<<endl<<my_fragment_shader_source<<endl;
+			//		cout << "vertex shader:"<<endl<<my_vertex_shader_source<<endl;
+			//		cout << "fragment shader:"<<endl<<my_fragment_shader_source<<endl;
 		
-		GLvoid* my_vertex_shader;
-		GLvoid* my_fragment_shader;
+			GLhandleARB my_vertex_shader;
+			GLhandleARB my_fragment_shader;
 		
-		// Create Shader And Program Objects
-		my_program = glCreateProgramObjectARB();
-		my_vertex_shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-		my_fragment_shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+			// Create Shader And Program Objects
+			my_program = glCreateProgramObjectARB();
+			my_vertex_shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+			my_fragment_shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 		
-		// Load Shader Sources
-		glShaderSourceARB(my_vertex_shader, 1, &my_vertex_shader_source, NULL);
-		checkARBError(my_vertex_shader);
-		glShaderSourceARB(my_fragment_shader, 1, &my_fragment_shader_source, NULL);
-		checkARBError(my_fragment_shader);
+			// Load Shader Sources
+			glShaderSourceARB(my_vertex_shader, 1, &my_vertex_shader_source, NULL);
+			checkARBError(my_vertex_shader);
+			glShaderSourceARB(my_fragment_shader, 1, &my_fragment_shader_source, NULL);
+			checkARBError(my_fragment_shader);
 		
 		
-		// Compile The Shaders
-		glCompileShaderARB(my_vertex_shader);
-		checkARBError(my_vertex_shader);
-		glCompileShaderARB(my_fragment_shader);
-		checkARBError(my_fragment_shader);
+			// Compile The Shaders
+			glCompileShaderARB(my_vertex_shader);
+			checkARBError(my_vertex_shader);
+			glCompileShaderARB(my_fragment_shader);
+			checkARBError(my_fragment_shader);
 		
-		// Attach The Shader Objects To The Program Object
-		glAttachObjectARB(my_program, my_vertex_shader);
-		glAttachObjectARB(my_program, my_fragment_shader);
-		checkARBError(my_program);
+			// Attach The Shader Objects To The Program Object
+			glAttachObjectARB(my_program, my_vertex_shader);
+			glAttachObjectARB(my_program, my_fragment_shader);
+			checkARBError(my_program);
 		
-		// Link The Program Object
-		glLinkProgramARB(my_program);
-		checkARBError(my_program);
+			// Link The Program Object
+			glLinkProgramARB(my_program);
+			checkARBError(my_program);
 		
-		// Use The Program Object Instead Of Fixed Function OpenGL
-		//	glUseProgramObjectARB(my_program);
+			// Use The Program Object Instead Of Fixed Function OpenGL
+			//	glUseProgramObjectARB(my_program);
+		} else {
+			cerr << "No shader objects";
+		}
 	}
 	
 	void init_textures()
@@ -270,6 +280,8 @@ public:
 		glLightfv(GL_LIGHT0, GL_AMBIENT, Vec4f(.2, .2, .2, 1.0).val);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, Vec4f(.8, .8, .8, 1.0).val);
 		glLightfv(GL_LIGHT0, GL_POSITION, Vec4f(320, 320, -1, 1.0).val);
+		
+		gl_font(fltk3::HELVETICA_BOLD, 36 );
 	}
 	
 	const char* getStateString(int _state) {
@@ -557,7 +569,7 @@ public:
 				} else if (key == 'd' || key == 'D') {
 					showFace = !showFace;
 				} else if (key == 'h' || key == 'H') {
-					useShaders = !useShaders;
+					if(GLEE_ARB_shader_objects) useShaders = !useShaders;
 				} else if (key == ' ') {
 					doRelighting = true;
 					//		} else if (key == '2') {

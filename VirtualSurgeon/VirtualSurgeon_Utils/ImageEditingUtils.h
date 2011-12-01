@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#include "gmm.h"
+#include <gmm.h>
 
 namespace ImageEditingUtils {
 
