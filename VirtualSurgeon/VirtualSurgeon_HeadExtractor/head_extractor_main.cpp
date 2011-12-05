@@ -568,6 +568,7 @@ int head_extractor_main(int argc, char** argv) {
 			"--wait-time 1"};
 		
 		p.ParseParams(14,_argv);
+		
 		StartMainWindow(p);
 		
 		/*	p.im_scale_by = 1.3;
@@ -647,80 +648,81 @@ int head_extractor_main(int argc, char** argv) {
 #if 1
 		{
 			Mat _relitFace,_relitMask; Rect relitRect;
-			SpharmonicsUI_main(argc, argv, p, _tmp, _relitFace, _relitMask, relitRect);
-			
-			int padding = 20;
-			relitRect.x -= padding;
-			relitRect.y -= padding;
-			relitRect.width += padding*2;
-			relitRect.height += padding*2;
-			
-			Mat roi;
-			
-			Mat relitFace(relitRect.size(),_relitFace.type(),Scalar(0));
-			roi = relitFace(Rect(padding,padding,_relitFace.cols,_relitFace.rows));
-			_relitFace.copyTo(roi);
-			
-			Mat relitMask(relitRect.size(),_relitMask.type(),Scalar(0));
-			roi = relitMask(Rect(padding,padding,_relitMask.cols,_relitMask.rows));
-			_relitMask.copyTo(roi);
-			
-			if(!p.no_gui) {		  
-				Mat_<Vec3b> all(relitRect.height,relitRect.width*4);
-				roi = all(Rect(0,0,relitRect.width,relitRect.height));
-				_tmp(relitRect).convertTo(roi, CV_8UC3);	
-				roi = all(Rect(relitRect.width,0,relitRect.width,relitRect.height));
-				cvtColor(~relitMask, roi, CV_GRAY2BGR);	
-				roi = all(Rect(relitRect.width*2,0,relitRect.width,relitRect.height));
-				relitFace.convertTo(roi, CV_8UC3, 255.0);
-				roi = all(Rect(relitRect.width*3,0,relitRect.width,relitRect.height));
-				cvtColor(relitMask, roi, CV_GRAY2BGR);	
-				imshow("all",all); waitKey(p.wait_time);
-				cv::destroyAllWindows();
-			}
-			
-			//Use poisson belnding to create a "continuation" of the relit face, for blending into original
-			Mat relitFace8UC3; relitFace.convertTo(relitFace8UC3,CV_8UC3,255.0);
-			bool no_gui = p.no_gui; int wait_time = p.wait_time;
-			p.no_gui = true; p.wait_time = 1;
-			p.PoissonImageEditing(relitFace8UC3, 
-								  Mat(~relitMask), 
-								  _tmp(relitRect), 
-								  Mat_<float>::ones(relitMask.size()),  
-								  true, 
-								  false);
-			p.no_gui = no_gui; p.wait_time = wait_time;
-			if(!p.no_gui) {
-				imshow("tmp",relitFace8UC3); waitKey(p.wait_time);
-			}
-			
-			//Blend the relit face into the original head
-			{
-				Mat_<Vec3f> relitFace32F3; relitFace8UC3.convertTo(relitFace32F3, CV_32FC3, 1.0/255.0);			
-				Mat_<Vec3f> orig32F3; _tmp(relitRect).convertTo(orig32F3, CV_32FC3, 1.0/255.0);			
-				Mat_<float> blendMask; Mat(relitMask).convertTo(blendMask,CV_32FC1, 1.0/255.0);
+			int spharmonics_res = SpharmonicsUI_main(argc, argv, p, _tmp, _relitFace, _relitMask, relitRect);
+			if (!spharmonics_res) { //no error occured in relighting
+				int padding = 20;
+				relitRect.x -= padding;
+				relitRect.y -= padding;
+				relitRect.width += padding*2;
+				relitRect.height += padding*2;
+				
+				Mat roi;
+				
+				Mat relitFace(relitRect.size(),_relitFace.type(),Scalar(0));
+				roi = relitFace(Rect(padding,padding,_relitFace.cols,_relitFace.rows));
+				_relitFace.copyTo(roi);
+				
+				Mat relitMask(relitRect.size(),_relitMask.type(),Scalar(0));
+				roi = relitMask(Rect(padding,padding,_relitMask.cols,_relitMask.rows));
+				_relitMask.copyTo(roi);
 				
 				if(!p.no_gui) {		  
-					Mat_<Vec3f> all(relitRect.height,relitRect.width*3);
+					Mat_<Vec3b> all(relitRect.height,relitRect.width*4);
 					roi = all(Rect(0,0,relitRect.width,relitRect.height));
-					relitFace32F3.copyTo(roi);
+					_tmp(relitRect).convertTo(roi, CV_8UC3);	
 					roi = all(Rect(relitRect.width,0,relitRect.width,relitRect.height));
-					cvtColor(blendMask, roi, CV_GRAY2BGR);	
+					cvtColor(~relitMask, roi, CV_GRAY2BGR);	
 					roi = all(Rect(relitRect.width*2,0,relitRect.width,relitRect.height));
-					orig32F3.copyTo(roi);
+					relitFace.convertTo(roi, CV_8UC3, 255.0);
+					roi = all(Rect(relitRect.width*3,0,relitRect.width,relitRect.height));
+					cvtColor(relitMask, roi, CV_GRAY2BGR);	
 					imshow("all",all); waitKey(p.wait_time);
-					destroyAllWindows();
-				}			
-				
-				Mat_<Vec3f> res = LaplacianBlend(relitFace32F3,orig32F3,blendMask);
-				if(!p.no_gui) {
-					imshow("orig",orig32F3);
-					imshow("tmp",res); waitKey(p.wait_time);
-					destroyAllWindows();
+					cv::destroyAllWindows();
 				}
 				
-				roi = _tmp(relitRect);
-				res.convertTo(roi, CV_8UC3, 255.0);
+				//Use poisson belnding to create a "continuation" of the relit face, for blending into original
+				Mat relitFace8UC3; relitFace.convertTo(relitFace8UC3,CV_8UC3,255.0);
+				bool no_gui = p.no_gui; int wait_time = p.wait_time;
+				p.no_gui = true; p.wait_time = 1;
+				p.PoissonImageEditing(relitFace8UC3, 
+									  Mat(~relitMask), 
+									  _tmp(relitRect), 
+									  Mat_<float>::ones(relitMask.size()),  
+									  true, 
+									  false);
+				p.no_gui = no_gui; p.wait_time = wait_time;
+				if(!p.no_gui) {
+					imshow("tmp",relitFace8UC3); waitKey(p.wait_time);
+				}
+				
+				//Blend the relit face into the original head
+				{
+					Mat_<Vec3f> relitFace32F3; relitFace8UC3.convertTo(relitFace32F3, CV_32FC3, 1.0/255.0);			
+					Mat_<Vec3f> orig32F3; _tmp(relitRect).convertTo(orig32F3, CV_32FC3, 1.0/255.0);			
+					Mat_<float> blendMask; Mat(relitMask).convertTo(blendMask,CV_32FC1, 1.0/255.0);
+					
+					if(!p.no_gui) {		  
+						Mat_<Vec3f> all(relitRect.height,relitRect.width*3);
+						roi = all(Rect(0,0,relitRect.width,relitRect.height));
+						relitFace32F3.copyTo(roi);
+						roi = all(Rect(relitRect.width,0,relitRect.width,relitRect.height));
+						cvtColor(blendMask, roi, CV_GRAY2BGR);	
+						roi = all(Rect(relitRect.width*2,0,relitRect.width,relitRect.height));
+						orig32F3.copyTo(roi);
+						imshow("all",all); waitKey(p.wait_time);
+						destroyAllWindows();
+					}			
+					
+					Mat_<Vec3f> res = LaplacianBlend(relitFace32F3,orig32F3,blendMask);
+					if(!p.no_gui) {
+						imshow("orig",orig32F3);
+						imshow("tmp",res); waitKey(p.wait_time);
+						destroyAllWindows();
+					}
+					
+					roi = _tmp(relitRect);
+					res.convertTo(roi, CV_8UC3, 255.0);
+				}
 			}
 		}
 #endif		
@@ -867,8 +869,11 @@ int head_extractor_main(int argc, char** argv) {
 			imshow(p.output_filename,composed_small);
 			waitKey(200);
 		}
-		waitKey();
+
+		cv::destroyAllWindows();
 		
+		fltk3::input("Thank you for using the application, your unique key: ",p.GenerateUniqueID().c_str());
+
 	} catch (Exception e) {
 		cerr << "Error " << e.what();
 		fltk3::alert(e.what());
@@ -877,7 +882,7 @@ int head_extractor_main(int argc, char** argv) {
 	}
 	
 	
-	
+
 	return 0;
 	/*
 	 Mat mask1(_tmp.size(),CV_8UC1,Scalar(0)),mask2(_tmp.size(),CV_8UC1,Scalar(0));

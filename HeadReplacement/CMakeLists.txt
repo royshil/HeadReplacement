@@ -46,10 +46,9 @@ if(OpenCV_FOUND)
 #	message(STATUS "OpenCV Libraries: ${OpenCV_LIBS}")
 endif(OpenCV_FOUND)
 
-add_library(GLEE ../GLee/GLee.c)
 
 #### Head Replacement ####
-link_directories(../../fltk-3.0.x-r9187/lib/)
+link_directories(${FLTK_LIB_DIR})
 
 if(APPLE)
 	add_executable( HeadReplacement MACOSX_BUNDLE main.cpp )
@@ -107,6 +106,6 @@ install(FILES ${ocvlib_paths} DESTINATION "${INSTALL_LIB_DIR}")
 
 IF(APPLE)
 	file(GLOB_RECURSE libogg_LIBS FOLLOW_SYMLINKS /usr/local/Cellar/libogg/1.3.0/lib/libogg*dylib )
-	INSTALL(FILES ${libogg_LIBS} DESTINATION "${HeadReplacement_EXE_DIR}")
+	INSTALL(FILES ${libogg_LIBS} DESTINATION "${EXECUTABLE_DIR}")
 	message(STATUS "install libogg: ${libogg_LIBS}")
 ENDIF(APPLE)

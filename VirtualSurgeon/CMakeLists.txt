@@ -31,9 +31,9 @@ endif(OpenCV_FOUND)
 #message(STATUS "OPENGL_DIR " "${OPENGL_DIR}")
 
 ######## Relighting #######
-#include_directories( "../../glow_104/glow_src" )
-include_directories(../fltk-3.0/include)
+include_directories(${FLTK_INCLUDE_DIR})
 include_directories(${OpenGL_INCLUDE_DIRS})
+include_directories(${GLEE_PATH})
 add_library(VirtualSurgeon_Relighting 
 	../HeadReplacement/glm.cpp 
 	../HeadReplacement/spherical_harmonics_analysis.cpp

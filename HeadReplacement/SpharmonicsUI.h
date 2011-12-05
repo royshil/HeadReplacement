@@ -116,7 +116,10 @@ private:
 	Mat_<Vec3f> relitFace;
 	Mat_<uchar> relitMask;
 	Rect bound;
+	
 public:
+	bool spharmonics_error;
+
 	SpharmonicsUI(const VirtualSurgeon::VirtualSurgeonFaceData& face_data, Mat& face_image):
 	GLWindow(200,200),
 	IMAGE_FILENAME1(face_data.filename)
@@ -137,6 +140,8 @@ public:
 		face_opaque = false;
 		showFace = true;
 		mouse_down = false;
+		
+		spharmonics_error = true;
 		
 		face_image.copyTo(tex_img[0]);
 //		align_init();
@@ -233,6 +238,12 @@ public:
 	}
 		
 	void align_init() {
+		
+		if(!GLEE_ARB_shader_objects) {
+			spharmonics_error = true;
+			this->hide(); //no shaders - no relighting
+		}
+		
 		//		{
 		//			tex_img[1] = imread(IMAGE_FILENAME2);
 		//			makePow2Texture(tex_img[1], &(image_tex[1].tex_id), &(image_tex[1].twr), &(image_tex[1].thr));
@@ -460,6 +471,8 @@ public:
 		
 		sha.getAlbedo().copyTo(relitFace);
 		sha.getMask().copyTo(relitMask);
+		
+		spharmonics_error = false;
 	}
 	
 	virtual void draw() {

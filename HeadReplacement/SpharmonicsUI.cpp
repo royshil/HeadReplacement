@@ -15,7 +15,7 @@ int SpharmonicsUI_main(int argc, char **argv,
 			   Mat& relitFace,
 			   Mat& relitMask,
 			   Rect& relitRect)
-{
+{	
 	Mat inputFace; _inputFace.copyTo(inputFace);
 
 	SpharmonicsUI window(face_data,inputFace);
@@ -23,10 +23,14 @@ int SpharmonicsUI_main(int argc, char **argv,
 //	window.make_current();
 	fltk3::run();
 	
-	window.getReLitFace().copyTo(relitFace);
-	window.getReLitMask().copyTo(relitMask);
-	relitRect = Rect(window.getReLitRect());
-	
+	if (!window.spharmonics_error) {
+		window.getReLitFace().copyTo(relitFace);
+		window.getReLitMask().copyTo(relitMask);
+		relitRect = Rect(window.getReLitRect());
+	} else {
+		return 1;
+	}
+
 	destroyAllWindows(); //close all OpenCV windows
 	
 	return 0;

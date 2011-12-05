@@ -7,7 +7,7 @@
 int curl_get(std::string& s, const std::string& _s = std::string(""));
 int btm_wait_time = 0;
 
-#include "../tclap-1.2.0/include/tclap/CmdLine.h"
+#include <tclap/CmdLine.h>
 using namespace TCLAP;
 
 #include "../libjson/libjson.h"
@@ -814,6 +814,21 @@ Mat_<Point2f>& VirtualSurgeonParams::LoadHeadCurve(Mat& im, Rect r) {
 	}
 	return m_curve;
 }
+	
+	std::string VirtualSurgeonParams::GenerateUniqueID() {
+		stringstream ss1; ss1 << cv::getTickCount();
+		const std::string& _str = ss1.str();
+		
+		unsigned long hash = 5381;
+		const char* str = _str.c_str();
+		int c;
+		
+		while (c = *str++)
+			hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+		
+		stringstream ss; ss << hash << "_" << ss1.str();
+		return ss.str();
+    }
 	
 
 }//ns

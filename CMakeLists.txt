@@ -46,6 +46,78 @@ include_directories(
   "${PROJECT_SOURCE_DIR}" 
   "${PROJECT_BINARY_DIR}") 
 
+
+
+######## Find and add GLEE ########
+file(GLOB_RECURSE GLEE_PATH "${CMAKE_SOURCE_DIR}/GLee.c")
+if(GLEE_PATH STREQUAL GLEE_PATH-NOTFOUND)
+	message(STATUS "GLEE was not found")
+else()
+	file(RELATIVE_PATH GLEE_PATH ${CMAKE_SOURCE_DIR} ${GLEE_PATH})
+	get_filename_component(GLEE_PATH ${GLEE_PATH} REALPATH)
+	get_filename_component(GLEE_PATH ${GLEE_PATH} PATH)
+	message(STATUS "Found GLEE at ${GLEE_PATH}")
+	add_library(GLEE ${GLEE_PATH}/GLee.c)
+endif()
+
+############ Find FLTK ############
+if(NOT DEFINED FLTK_PATH)
+	file(GLOB_RECURSE FLTK_PATH "${CMAKE_SOURCE_DIR}/Widget.h")
+	if(FLTK_PATH STREQUAL FLTK_PATH-NOTFOUND   OR   FLTK_PATH STREQUAL "")
+		message(STATUS "FLTK was not found !!!!!")
+	else()
+		file(RELATIVE_PATH FLTK_PATH ${CMAKE_SOURCE_DIR} ${FLTK_PATH})
+		get_filename_component(FLTK_PATH ${FLTK_PATH} REALPATH)
+		get_filename_component(FLTK_PATH ${FLTK_PATH} PATH)
+		message(STATUS "Found FLTK at ${FLTK_PATH}")
+	endif()
+else()
+	get_filename_component(FLTK_PATH ${FLTK_PATH} REALPATH)
+	message(STATUS "FLTK path set to ${FLTK_PATH}")
+	set(FLTK_INCLUDE_DIR ${FLTK_PATH}/include)
+	set(FLTK_LIB_DIR ${FLTK_PATH}/lib)
+endif()
+
+########### Find TCLAP ###########
+file(GLOB_RECURSE TCLAP_PATH "${CMAKE_SOURCE_DIR}/CmdLine.h")
+if(TCLAP_PATH STREQUAL TCLAP_PATH-NOTFOUND)
+	message(STATUS "TCLAP was not found")
+else()
+	file(RELATIVE_PATH TCLAP_PATH ${CMAKE_SOURCE_DIR} ${TCLAP_PATH})
+	get_filename_component(TCLAP_PATH ${TCLAP_PATH} REALPATH)
+	get_filename_component(TCLAP_PATH ${TCLAP_PATH} PATH)
+	set(TCLAP_PATH "${TCLAP_PATH}/..")
+	message(STATUS "Found TCLAP at ${TCLAP_PATH}")
+endif()
+
+########### Find GMM ###########
+file(GLOB_RECURSE GMM_PATH "${CMAKE_SOURCE_DIR}/gmm_solver_Schwarz_additive.h")
+if(GMM_PATH STREQUAL GMM_PATH-NOTFOUND)
+	message(STATUS "GMM was not found")
+else()
+	file(RELATIVE_PATH GMM_PATH ${CMAKE_SOURCE_DIR} ${GMM_PATH})
+	get_filename_component(GMM_PATH ${GMM_PATH} REALPATH)
+	get_filename_component(GMM_PATH ${GMM_PATH} PATH)
+	message(STATUS "Found GMM at ${GMM_PATH}")
+endif()
+
+
+#### Find and add GCOptimization ####
+if(NOT DEFINED GCO_PATH)
+	file(GLOB_RECURSE GCO_PATH "${CMAKE_SOURCE_DIR}/GCoptimization.cpp")
+	if(GCO_PATH STREQUAL GCO_PATH-NOTFOUND)
+		message(STATUS "GCOptimization was not found")
+	else()
+		file(RELATIVE_PATH GCO_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${GCO_PATH})
+		get_filename_component(GCO_PATH ${GCO_PATH} REALPATH)
+		get_filename_component(GCO_PATH ${GCO_PATH} PATH)
+		message(STATUS "Found GCOptimization at ${GCO_PATH}")
+	endif()
+else()
+	get_filename_component(GCO_PATH ${GCO_PATH} REALPATH)
+	message(STATUS "GCOptimization path set to ${GCO_PATH}")
+endif()
+
 add_subdirectory(VirtualSurgeon) # LIBRARY
 add_subdirectory(HeadReplacement) # EXECUTABLE
 

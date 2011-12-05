@@ -11,13 +11,14 @@
 
 using namespace cv;
 
+#include "GLee.h"
+
 #if defined(__APPLE__)
 #  include <OpenGL/gl.h>
 #elif defined(__linux__) || defined(__MINGW32__) || defined(WIN32)
 #  define GLEW_STATIC
 //#  include <GL/glew.h>
 //#  include <GL/wglew.h>
-#  include "../GLee/GLee.h"
 #  include <GL/gl.h>
 #  include <GL/glu.h>
 //#  include <GL/glext.h>

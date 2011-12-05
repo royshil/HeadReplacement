@@ -1,7 +1,7 @@
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(../../gmm-4.1/include/gmm)
+include_directories(${GMM_PATH})
 include_directories(../curl-7.19.3/include)
-include_directories(../../tclap-1.2.1/include)
+include_directories(${TCLAP_PATH})
 
 add_library(VirtualSurgeon_Utils
 	curl_get.cpp

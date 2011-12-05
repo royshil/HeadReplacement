@@ -94,6 +94,7 @@ public:
 	void face_grab_cut(cv::Mat& orig, cv::Mat& mask, int iters, int dilate_size = 30);
 	void PoissonImageEditing(const cv::Mat& back, const cv::Mat& backMask, const cv::Mat& front, const cv::Mat& frontMask, bool doLaplacian = true, bool doBounding = true);
 	Mat_<Point2f>& LoadHeadCurve(Mat& im, Rect r);
+	std::string GenerateUniqueID();
 };
 
 
