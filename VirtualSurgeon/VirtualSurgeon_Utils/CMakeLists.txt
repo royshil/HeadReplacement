@@ -2,6 +2,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${GMM_PATH})
 include_directories(../curl-7.19.3/include)
 include_directories(${TCLAP_PATH})
+include_directories(${FLTK_INCLUDE_DIR})
 
 add_library(VirtualSurgeon_Utils
 	curl_get.cpp

@@ -18,11 +18,11 @@ Mat_<Vec3f> LaplacianBlend(const Mat_<Vec3f>& l, const Mat_<Vec3f>& r, const Mat
 
 int main() {
 
-	Mat _orange = imread("/Users/royshilkrot/Desktop/orange_fruit.jpg");
+	Mat _orange = imread("orange_fruit.jpg");
 	Mat_<Vec3f> orange; _orange.convertTo(orange, orange.type(), 1.0/255.0);
-	Mat _apple = imread("/Users/royshilkrot/Desktop/apple_fruit.jpg");
+	Mat _apple = imread("apple_fruit.jpg");
 	Mat_<Vec3f> apple; _apple.convertTo(apple, apple.type(), 1.0/255.0);
-	Mat _mask = imread("/Users/royshilkrot/Desktop/fruits_mask.png",0);
+	Mat _mask = imread("fruits_mask.png",0);
 	Mat_<float> maskf; _mask.convertTo(maskf, maskf.type(), 1.0/255.0);
 	
 	imshow("left", orange);waitKey(1);

@@ -82,9 +82,10 @@ if(NOT DEFINED FLTK_PATH)
 else()
 	get_filename_component(FLTK_PATH ${FLTK_PATH} REALPATH)
 	message(STATUS "FLTK path set to ${FLTK_PATH}")
-	set(FLTK_INCLUDE_DIR ${FLTK_PATH}/include)
-	set(FLTK_LIB_DIR ${FLTK_PATH}/lib)
 endif()
+set(FLTK_INCLUDE_DIR ${FLTK_PATH}/include)
+set(FLTK_LIB_DIR ${FLTK_PATH}/lib)
+
 
 ########### Find TCLAP ###########
 file(GLOB_RECURSE TCLAP_PATH "${CMAKE_SOURCE_DIR}/CmdLine.h")

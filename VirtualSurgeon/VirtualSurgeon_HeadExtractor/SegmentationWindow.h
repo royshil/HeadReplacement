@@ -144,7 +144,9 @@ public:
 	}
 	
 	void redrawOpenCVImage() {
-		vector<Mat> v;  split(im,v);
+		int from_to[] = {0,1, 1,2, 2,0};
+		vector<Mat> _v(3),v(3);  split(im,_v); v[0] = _v[2]; v[1] = _v[1]; v[2] = _v[0];
+//		mixChannels(_v, v, from_to, 3);
 		int _ii;
 		for(_ii = 0; _ii < ((he.getParams().do_two_segments)?2:3); _ii++) {
 			int ind = _ii + ((he.getParams().do_two_segments)?1:0);
@@ -154,14 +156,25 @@ public:
 			v[1] = v[1] + maskA[_ii] * 0.15;
 			v[2] = v[2] + maskA[_ii] * 0.15;
 		}
-		
-		cv::merge(v,currentSegState);
+//		mixChannels(v, _v, from_to, 3);		
+		_v[0] = v[2]; _v[1] = v[1]; _v[2] = v[0];
+		cv::merge(_v,currentSegState);
 		
 		//if hovering - show the brush
 		{
 			circle(currentSegState, mouse_pt, sizeOfBrush, Scalar((h_)?255:0,(f_)?255:0,(b_)?255:0), 1);
 		}
 		img = new fltk3::RGBImage(currentSegState.data,currentSegState.cols,currentSegState.rows);
+		
+		{
+			Mat _tmp; 
+//			currentSegState.copyTo(_tmp);
+			cv::merge(v,_tmp);
+			_tmp.setTo(Scalar(255,0,0),hard_constraints==0);
+			_tmp.setTo(Scalar(0,255,0),hard_constraints==1);
+			_tmp.setTo(Scalar(0,0,255),hard_constraints==2);
+			imshow("scribble",_tmp);
+		}		
 	}		
 	
 	virtual int handle(int e) {
@@ -204,7 +217,7 @@ public:
 					if(b_) { circle(maskA[2],m,sizeOfBrush,Scalar(255),CV_FILLED); circle(hard_constraints,m,sizeOfBrush,Scalar(2),CV_FILLED);}
 					change = true;
 					last = m;
-
+					
 					recalculateGraph();
 					redrawOpenCVImage();
 //					redraw();

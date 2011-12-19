@@ -38,9 +38,6 @@ typedef struct my_texture {
 	my_texture():tex_id(-1),twr(1.0),thr(1.0) {}
 } MyTexture;
 
-//#define IMAGE_FILENAME1 "/Users/royshilkrot/Downloads/Head Replacement/VirtualSurgeon/images/2579685145_4abb9337e5_d.jpg"
-//#define IMAGE_FILENAME2 "/Users/royshilkrot/Downloads/Head Replacement/VirtualSurgeon/images/1936149265_a1fdc856b8_b_d.jpg"
-
 #define STATE_IDLE 0
 #define STATE_MOVING 1
 #define STATE_SCALING 2
@@ -249,8 +246,6 @@ public:
 		//			makePow2Texture(tex_img[1], &(image_tex[1].tex_id), &(image_tex[1].twr), &(image_tex[1].thr));
 		//			image_tex[1].aspect_w2h = (double)tex_img[1].cols/(double)tex_img[1].rows;
 		//		}
-		//head_obj = glmReadOBJ("/Users/royshilkrot/Downloads/torso_uniform.off/face.obj");
-		//	head_obj = glmReadOBJ("/Users/royshilkrot/Dropbox/front_cylinder.obj");
 		head_obj = glmReadOBJ(path_to_3D_model.c_str());
 		glmUnitize(head_obj);
 						

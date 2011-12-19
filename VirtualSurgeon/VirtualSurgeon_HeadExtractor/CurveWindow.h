@@ -56,16 +56,16 @@ public:
 		
 		he.MakeMaskFromCurve(curve, maskFace, hairMask, backMask, backMask1);
 		
-		vector<cv::Mat> v(3); v[0] = hairMask; v[1] = maskFace;
+		vector<cv::Mat> _v(3),v(3); v[0] = hairMask; v[1] = maskFace;
 		if(he.getParams().do_two_back_kernels) {
 			v[2] = backMask + backMask1 * 0.5;
 		} else 
 			v[2] = backMask;
 		vector<cv::Mat> imsplit; cv::split(_curve_out,imsplit);
-		v[0] = v[0] * 0.2 + imsplit[0] * 0.8;
-		v[1] = v[1] * 0.2 + imsplit[1] * 0.8;
-		v[2] = v[2] * 0.2 + imsplit[2] * 0.8;
-		cv::merge(v,_curve_out);
+		_v[0] = v[2] * 0.2 + imsplit[0] * 0.8;
+		_v[1] = v[1] * 0.2 + imsplit[1] * 0.8;
+		_v[2] = v[0] * 0.2 + imsplit[2] * 0.8;
+		cv::merge(_v,_curve_out);
 		
 		for(int i=0;i<135;i++) {
 			cv::circle(_curve_out,*(curve[i]),3,cv::Scalar(0,255,255),CV_FILLED);

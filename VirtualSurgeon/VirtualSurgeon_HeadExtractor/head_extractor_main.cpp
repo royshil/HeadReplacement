@@ -731,7 +731,8 @@ int head_extractor_main(int argc, char** argv) {
 		Mat skinMaskOutput;
 		Mat maskFace = he.ExtractHead(_tmp,r,&skinMaskOutput);
 		//	imshow("result",result);
-		/*	if (!p.output_filename.empty()) {
+		//if (!p.output_filename.empty()) 
+		{
 		 vector<Mat> v;
 		 Mat imMasked,_result;
 		 im(r).convertTo(imMasked,CV_32FC3,1.0/255.0);
@@ -744,14 +745,14 @@ int head_extractor_main(int argc, char** argv) {
 		 
 		 cout << "write: " << p.output_filename << "\n";
 		 
-		 //imshow("result",_result);
-		 imwrite(p.output_filename,_result);
+			imshow("result",_result); waitKey(0);
+//		 imwrite(p.output_filename,_result);
 		 
 		 string s = p.output_filename + "_orig.png";
 		 cout << "write: " << s << "\n";
-		 imwrite(s,im(r));
+//		 imwrite(s,im(r));
 		 }
-		 */
+		 
 		
 		{
 			Mat _roi = im(r);

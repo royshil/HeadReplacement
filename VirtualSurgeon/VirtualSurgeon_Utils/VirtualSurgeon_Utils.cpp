@@ -140,6 +140,26 @@ void VirtualSurgeonParams::InitializeDefault() {
 	params.is_female = false;
 	params.blur_on_resize = false;
 	params.two_way_recolor = false;
+	
+#ifdef __APPLE__
+	char path[1024];
+	uint32_t size = sizeof(path);
+	if (_NSGetExecutablePath(path, &size) == 0) {
+		cout << "executable path is " << path<<endl;
+		string path_s = path;
+		this->path_to_exe = path_s.substr(0, path_s.rfind("/")) + "/";
+#elif defined(WIN32)
+	TCHAR szPath[MAX_PATH];
+	
+	if( GetModuleFileName( NULL, szPath, MAX_PATH ) )
+	{
+		string path_s = szPath;
+		this->path_to_exe = path_s.substr(0, path_s.rfind("\\")) + "\\";
+#endif
+	} else {
+		cerr << "can't get executable name" << endl;
+		fltk3::alert("can't get executable name;");
+	}
 }
 
 void VirtualSurgeonParams::ParseParams(int argc, const char** argv) {
@@ -305,40 +325,15 @@ void ParseJSON(JSONNODE *n, VirtualSurgeonFaceData& params, Mat& im) {
 }
 	
 void VirtualSurgeonFaceData::DetectEyes(Mat& frame){	
-	String face_cascade_name = "haarcascade_frontalface_alt.xml";
-	String eyes_cascade_name = "haarcascade_eye_tree_eyeglasses.xml";
-	
-#ifdef __APPLE__
-	char path[1024];
-	uint32_t size = sizeof(path);
-	if (_NSGetExecutablePath(path, &size) == 0) {
-		printf("executable path is %s\n", path);
-		string path_s = path;
-		this->path_to_exe = path_s.substr(0, path_s.rfind("/")) + "/"; //TODO move this out of here....
-#elif defined(WIN32)
-	TCHAR szPath[MAX_PATH];
-
-    if( GetModuleFileName( NULL, szPath, MAX_PATH ) )
-    {
-		string path_s = szPath;
-		this->path_to_exe = path_s.substr(0, path_s.rfind("\\")) + "\\"; //TODO move this out of here....
-#endif
-		face_cascade_name = this->path_to_exe + face_cascade_name;
-		eyes_cascade_name = this->path_to_exe + eyes_cascade_name;
-//		fltk3::alert(face_cascade_name.c_str());
-	} else {
-		cerr << "can't get executable name: buffer too small; need size " << size << endl;
-		fltk3::alert("can't get executable name: buffer too small;");
-	}
+	String face_cascade_name = this->path_to_exe + "haarcascade_frontalface_alt.xml";
+	String eyes_cascade_name = this->path_to_exe + "haarcascade_eye_tree_eyeglasses.xml";
 	
 	CascadeClassifier face_cascade;
 	CascadeClassifier eyes_cascade;
 
 	if( !face_cascade.load( face_cascade_name ) ){ 
 		cerr << "--(!)Error loading "<<face_cascade_name<<"\n";
-#ifdef __APPLE__
 		fltk3::alert("--(!)Error loading");
-#endif;
 		return;
 	}
 	if( !eyes_cascade.load( eyes_cascade_name ) ){ cerr << "--(!)Error loading "<<eyes_cascade_name<<"\n"; return; };
